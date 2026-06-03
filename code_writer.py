@@ -35,7 +35,6 @@ class CodeWriter:
         self.write_line(f"({end_label})")
 
     def write_arithmetic(self, command):
-
         operations = {
             "add": "M=D+M",
             "sub": "M=M-D",
@@ -97,6 +96,31 @@ class CodeWriter:
             self.write_line("M=D")
             self.write_line("@SP")
             self.write_line("M=M+1")
+
+    def write_pop(self, segment, index):
+        segments = {
+            "local": "LCL",
+            "argument": "ARG",
+            "this": "THIS",
+            "that": "THAT"
+        }
+
+        if segment in segments:
+            self.write_line(f"@{index}")
+            self.write_line("D=A")
+            self.write_line(f"@{segments[segment]}")
+            self.write_line("D=D+M")
+
+            self.write_line("@R13")
+            self.write_line("M=D")
+
+            self.write_line("@SP")
+            self.write_line("AM=M-1")
+            self.write_line("D=M")
+
+            self.write_line("@R13")
+            self.write_line("A=M")
+            self.write_line("M=D")
 
     def close(self):
         self.file.close()
