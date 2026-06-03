@@ -1,20 +1,29 @@
 from parser import Parser
+from code_writer import CodeWriter
 
 
 def main():
-    parser = Parser("tests/teste.vm")
+    input_file = "tests/teste.vm"
+    output_file = "tests/teste.asm"
+
+    parser = Parser(input_file)
+    writer = CodeWriter(output_file)
 
     while parser.has_more_commands():
         parser.advance()
 
-        print("Comando:", parser.current_command)
-        print("Tipo:", parser.command_type())
-        print("Arg1:", parser.arg1())
+        command_type = parser.command_type()
 
-        if parser.command_type() in ["C_PUSH", "C_POP"]:
-            print("Arg2:", parser.arg2())
+        if command_type == "C_ARITHMETIC":
+            writer.write_arithmetic(parser.arg1())
 
-        print("---")
+        elif command_type == "C_PUSH":
+            writer.write_push(parser.arg1(), parser.arg2())
+
+        elif command_type == "C_POP":
+            writer.write_pop(parser.arg1(), parser.arg2())
+
+    writer.close()
 
 
 if __name__ == "__main__":
