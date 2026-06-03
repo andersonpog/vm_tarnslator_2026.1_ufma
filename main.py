@@ -1,5 +1,12 @@
+from parser import Parser
+
+
 def main():
-    print("Hello from vm-tarnslator-2026-1-ufma!")
+    parser = Parser("tests/teste.vm")
+
+    while parser.has_more_commands():
+        command = parser.command()
+        print(command)
 
 
 if __name__ == "__main__":
