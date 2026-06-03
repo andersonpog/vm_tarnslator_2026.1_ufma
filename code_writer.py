@@ -21,5 +21,15 @@ class CodeWriter:
             self.write_line("A=A-1")
             self.write_line(operations[command])
 
+        elif command == "neg":
+            self.write_line("@SP")
+            self.write_line("A=M-1")
+            self.write_line("M=-M")
+
+        elif command == "not":
+            self.write_line("@SP")
+            self.write_line("A=M-1")
+            self.write_line("M=!M")
+
     def close(self):
         self.file.close()
