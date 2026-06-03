@@ -69,6 +69,13 @@ class CodeWriter:
             self.write_comparison("JLT")
 
     def write_push(self, segment, index):
+        segments = {
+            "local": "LCL",
+            "argument": "ARG",
+            "this": "THIS",
+            "that": "THAT"
+        }
+
         if segment == "constant":
             self.write_line(f"@{index}")
             self.write_line("D=A")
@@ -78,18 +85,20 @@ class CodeWriter:
             self.write_line("@SP")
             self.write_line("M=M+1")
 
-        segments = {
-            "local": "LCL",
-            "argument": "ARG",
-            "this": "THIS",
-            "that": "THAT"
-        }
-
-        if segment in segments:
+        elif segment in segments:
             self.write_line(f"@{index}")
             self.write_line("D=A")
             self.write_line(f"@{segments[segment]}")
             self.write_line("A=D+M")
+            self.write_line("D=M")
+            self.write_line("@SP")
+            self.write_line("A=M")
+            self.write_line("M=D")
+            self.write_line("@SP")
+            self.write_line("M=M+1")
+
+        elif segment == "temp":
+            self.write_line(f"@{5 + index}")
             self.write_line("D=M")
             self.write_line("@SP")
             self.write_line("A=M")
@@ -120,6 +129,13 @@ class CodeWriter:
 
             self.write_line("@R13")
             self.write_line("A=M")
+            self.write_line("M=D")
+
+        elif segment == "temp":
+            self.write_line("@SP")
+            self.write_line("AM=M-1")
+            self.write_line("D=M")
+            self.write_line(f"@{5 + index}")
             self.write_line("M=D")
 
     def close(self):
