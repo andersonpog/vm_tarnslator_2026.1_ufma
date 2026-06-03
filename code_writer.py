@@ -79,5 +79,24 @@ class CodeWriter:
             self.write_line("@SP")
             self.write_line("M=M+1")
 
+        segments = {
+            "local": "LCL",
+            "argument": "ARG",
+            "this": "THIS",
+            "that": "THAT"
+        }
+
+        if segment in segments:
+            self.write_line(f"@{index}")
+            self.write_line("D=A")
+            self.write_line(f"@{segments[segment]}")
+            self.write_line("A=D+M")
+            self.write_line("D=M")
+            self.write_line("@SP")
+            self.write_line("A=M")
+            self.write_line("M=D")
+            self.write_line("@SP")
+            self.write_line("M=M+1")
+
     def close(self):
         self.file.close()
