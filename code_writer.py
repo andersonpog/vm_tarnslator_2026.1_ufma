@@ -1,8 +1,10 @@
+import os
+
 class CodeWriter:
     def __init__(self, filename):
         self.file = open(filename, "w")
         self.label_count = 0
-        self.filename_base = "Static"
+        self.filename_base = os.path.basename(filename).replace(".asm", "") 
 
     def write_line(self, line):
         self.file.write(line + "\n")
@@ -116,6 +118,16 @@ class CodeWriter:
             self.write_line("@SP")
             self.write_line("M=M+1")
 
+        elif segment == "pointer":
+            target = "THIS" if index == 0 else "THAT"
+            self.write_line(f"@{target}")
+            self.write_line("D=M")
+            self.write_line("@SP")
+            self.write_line("A=M")
+            self.write_line("M=D")
+            self.write_line("@SP")
+            self.write_line("M=M+1")
+
     def write_pop(self, segment, index):
         segments = {
             "local": "LCL",
@@ -153,6 +165,14 @@ class CodeWriter:
             self.write_line("AM=M-1")
             self.write_line("D=M")
             self.write_line(f"@{self.filename_base}.{index}")
+            self.write_line("M=D")
+
+        elif segment == "pointer":
+            target = "THIS" if index == 0 else "THAT"
+            self.write_line("@SP")
+            self.write_line("AM=M-1")
+            self.write_line("D=M")
+            self.write_line(f"@{target}")
             self.write_line("M=D")
 
     def close(self):
