@@ -24,6 +24,43 @@ Projeto desenvolvido para a disciplina de **Compiladores** da Universidade Feder
 
 ---
 
+### ⚙️ Instalação e Configuração
+
+Siga os passos abaixo para preparar o ambiente de desenvolvimento:
+
+1. **Clonar o repositório:**
+   ```bash
+   git clone https://github.com/andersonpog/vm_tarnslator_2026.1_ufma.git
+   cd vm_tarnslator_2026.1_ufma
+   ```
+
+2. **Criar o Ambiente Virtual (.venv):**
+   O `uv` gerencia o ambiente virtual de forma otimizada. Para criar e configurar a versão correta do Python, execute:
+   ```bash
+   uv venv
+   ```
+
+3. **Ativar o Ambiente Virtual:**
+   Dependendo do seu sistema operacional, o comando de ativação muda:
+    **Windows (PowerShell):**
+     ```powershell
+     .venv\Scripts\Activate.ps1
+     ```
+    **Linux / macOS:**
+     ```bash
+     source .venv/bin/activate
+     ```
+
+4. **Instalar Dependências:**
+   Com o ambiente ativo, instale os pacotes necessários:
+   ```bash
+   uv pip install -r requirements.txt
+   ```
+
+
+---
+
+
 ## Estrutura do Projeto
 
 * `parser.py`: responsável pela leitura e interpretação dos comandos presentes no arquivo VM.
@@ -82,10 +119,10 @@ Projeto desenvolvido para a disciplina de **Compiladores** da Universidade Feder
 
 ## Execução
 
-Para executar o tradutor, utilize o comando:
+Para executar o tradutor em um aruqivo (teste.vm por exemplo), utilize o comando:
 
 ```bash
-python main.py
+python main.py teste.vm
 ```
 
 O arquivo VM definido na função principal será processado e o código Assembly correspondente será gerado automaticamente.
@@ -111,4 +148,37 @@ A=M
 M=D
 @SP
 M=M+1
+@8
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@SP
+AM=M-1
+D=M
+A=A-1
+M=D+M
+@0
+D=A
+@LCL
+D=D+M
+@R13
+M=D
+@SP
+AM=M-1
+D=M
+@R13
+A=M
+M=D
+
 ```
+
+---
+
+## 🧪 Executando os Testes
+
+Foram feitos testes via scripts fornecidos pelo projeto com o CPU emulator. Um exemplo pode ser visto na imagem abaixo.
+
+![Execução CPU Emulator](image.png)
