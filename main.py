@@ -12,17 +12,14 @@ def main():
 
     input_file = sys.argv[1]
 
-    # ALERTA: Verifica se o caminho existe e se realmente aponta para um arquivo
     if not os.path.exists(input_file) or not os.path.isfile(input_file):
         print(f"Erro: O caminho '{input_file}' é inválido ou o arquivo não existe.")
         sys.exit(1)
 
-    # Validação extra: Garante que o arquivo possui a extensão correta (.vm)
     if not input_file.endswith(".vm"):
         print("Erro: O arquivo de entrada deve ter a extensão '.vm'.")
         sys.exit(1)
 
-    # Troca a extensão de .vm para .asm
     output_file = input_file.replace(".vm", ".asm")
 
     parser = Parser(input_file)
@@ -41,6 +38,15 @@ def main():
 
         elif command_type == "C_POP":
             writer.write_pop(parser.arg1(), parser.arg2())
+
+        elif command_type == "C_LABEL":
+            writer.write_label(parser.arg1())
+
+        elif command_type == "C_GOTO":
+            writer.write_goto(parser.arg1())
+
+        elif command_type == "C_IF":
+            writer.write_if(parser.arg1())
 
     writer.close()
 
