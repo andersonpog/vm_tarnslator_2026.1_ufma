@@ -2,7 +2,7 @@ import os
 
 class CodeWriter:
     def __init__(self, filename):
-        self.file = open(filename, "w")
+        self.file = open(filename, "w", encoding="utf-8")
         self.label_count = 0
         self.filename_base = os.path.basename(filename).replace(".asm", "")
 
@@ -18,7 +18,7 @@ class CodeWriter:
         self.write_line("D=A")
         self.write_line("@SP")
         self.write_line("M=D")
-        self.write_line("// call Sys.init 0 será implementado na etapa de sub-rotinas")
+        self.write_line("// call Sys.init 0 sera implementado na etapa de sub-rotinas")
 
     def write_comparison(self, jump_command):
         true_label = f"TRUE_{self.label_count}"
@@ -185,6 +185,20 @@ class CodeWriter:
             self.write_line("D=M")
             self.write_line(f"@{target}")
             self.write_line("M=D")
+
+    def write_label(self, label):
+        self.write_line(f"({label})")
+
+    def write_goto(self, label):
+        self.write_line(f"@{label}")
+        self.write_line("0;JMP")
+
+    def write_if(self, label):
+        self.write_line("@SP")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line(f"@{label}")
+        self.write_line("D;JNE")
 
     def close(self):
         self.file.close()
