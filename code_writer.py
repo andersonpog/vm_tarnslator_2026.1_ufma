@@ -4,10 +4,21 @@ class CodeWriter:
     def __init__(self, filename):
         self.file = open(filename, "w")
         self.label_count = 0
-        self.filename_base = os.path.basename(filename).replace(".asm", "") 
+        self.filename_base = os.path.basename(filename).replace(".asm", "")
+
+        # Bootstrap: inicializa SP = 256
+        self.write_init()
 
     def write_line(self, line):
         self.file.write(line + "\n")
+
+    def write_init(self):
+        self.write_line("// Bootstrap code")
+        self.write_line("@256")
+        self.write_line("D=A")
+        self.write_line("@SP")
+        self.write_line("M=D")
+        self.write_line("// call Sys.init 0 será implementado na etapa de sub-rotinas")
 
     def write_comparison(self, jump_command):
         true_label = f"TRUE_{self.label_count}"
