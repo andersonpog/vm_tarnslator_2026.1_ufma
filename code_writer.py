@@ -4,6 +4,7 @@ class CodeWriter:
     def __init__(self, filename):
         self.file = open(filename, "w", encoding="utf-8")
         self.label_count = 0
+        self.return_count = 0
         self.filename_base = os.path.basename(filename).replace(".asm", "")
 
         # Bootstrap: inicializa SP = 256
@@ -19,6 +20,13 @@ class CodeWriter:
         self.write_line("@SP")
         self.write_line("M=D")
         self.write_line("// call Sys.init 0 sera implementado na etapa de sub-rotinas")
+
+    def push_d(self):
+        self.write_line("@SP")
+        self.write_line("A=M")
+        self.write_line("M=D")
+        self.write_line("@SP")
+        self.write_line("M=M+1")
 
     def write_comparison(self, jump_command):
         true_label = f"TRUE_{self.label_count}"
@@ -93,11 +101,7 @@ class CodeWriter:
         if segment == "constant":
             self.write_line(f"@{index}")
             self.write_line("D=A")
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=D")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.push_d()
 
         elif segment in segments:
             self.write_line(f"@{index}")
@@ -105,39 +109,23 @@ class CodeWriter:
             self.write_line(f"@{segments[segment]}")
             self.write_line("A=D+M")
             self.write_line("D=M")
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=D")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.push_d()
 
         elif segment == "temp":
             self.write_line(f"@{5 + index}")
             self.write_line("D=M")
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=D")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.push_d()
 
         elif segment == "static":
             self.write_line(f"@{self.filename_base}.{index}")
             self.write_line("D=M")
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=D")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.push_d()
 
         elif segment == "pointer":
             target = "THIS" if index == 0 else "THAT"
             self.write_line(f"@{target}")
             self.write_line("D=M")
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=D")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.push_d()
 
     def write_pop(self, segment, index):
         segments = {
@@ -204,11 +192,59 @@ class CodeWriter:
         self.write_line(f"({function_name})")
 
         for _ in range(n_locals):
-            self.write_line("@SP")
-            self.write_line("A=M")
-            self.write_line("M=0")
-            self.write_line("@SP")
-            self.write_line("M=M+1")
+            self.write_line("@0")
+            self.write_line("D=A")
+            self.push_d()
+
+    def write_call(self, function_name, n_args):
+        return_label = f"RET_ADDRESS_{self.return_count}"
+        self.return_count += 1
+
+        # push return-address
+        self.write_line(f"@{return_label}")
+        self.write_line("D=A")
+        self.push_d()
+
+        # push LCL
+        self.write_line("@LCL")
+        self.write_line("D=M")
+        self.push_d()
+
+        # push ARG
+        self.write_line("@ARG")
+        self.write_line("D=M")
+        self.push_d()
+
+        # push THIS
+        self.write_line("@THIS")
+        self.write_line("D=M")
+        self.push_d()
+
+        # push THAT
+        self.write_line("@THAT")
+        self.write_line("D=M")
+        self.push_d()
+
+        # ARG = SP - nArgs - 5
+        self.write_line("@SP")
+        self.write_line("D=M")
+        self.write_line(f"@{n_args + 5}")
+        self.write_line("D=D-A")
+        self.write_line("@ARG")
+        self.write_line("M=D")
+
+        # LCL = SP
+        self.write_line("@SP")
+        self.write_line("D=M")
+        self.write_line("@LCL")
+        self.write_line("M=D")
+
+        # goto function
+        self.write_line(f"@{function_name}")
+        self.write_line("0;JMP")
+
+        # return-address label
+        self.write_line(f"({return_label})")
 
     def close(self):
         self.file.close()
