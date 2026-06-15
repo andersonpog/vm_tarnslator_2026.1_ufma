@@ -200,5 +200,15 @@ class CodeWriter:
         self.write_line(f"@{label}")
         self.write_line("D;JNE")
 
+    def write_function(self, function_name, n_locals):
+        self.write_line(f"({function_name})")
+
+        for _ in range(n_locals):
+            self.write_line("@SP")
+            self.write_line("A=M")
+            self.write_line("M=0")
+            self.write_line("@SP")
+            self.write_line("M=M+1")
+
     def close(self):
         self.file.close()
