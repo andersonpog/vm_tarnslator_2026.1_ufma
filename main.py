@@ -51,6 +51,9 @@ def main():
         elif command_type == "C_FUNCTION":
             writer.write_function(parser.arg1(), parser.arg2())
 
+        elif command_type == "C_CALL":
+            writer.write_call(parser.arg1(), parser.arg2())
+
     writer.close()
 
 
