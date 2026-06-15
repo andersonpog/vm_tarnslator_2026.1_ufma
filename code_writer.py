@@ -200,32 +200,26 @@ class CodeWriter:
         return_label = f"RET_ADDRESS_{self.return_count}"
         self.return_count += 1
 
-        # push return-address
         self.write_line(f"@{return_label}")
         self.write_line("D=A")
         self.push_d()
 
-        # push LCL
         self.write_line("@LCL")
         self.write_line("D=M")
         self.push_d()
 
-        # push ARG
         self.write_line("@ARG")
         self.write_line("D=M")
         self.push_d()
 
-        # push THIS
         self.write_line("@THIS")
         self.write_line("D=M")
         self.push_d()
 
-        # push THAT
         self.write_line("@THAT")
         self.write_line("D=M")
         self.push_d()
 
-        # ARG = SP - nArgs - 5
         self.write_line("@SP")
         self.write_line("D=M")
         self.write_line(f"@{n_args + 5}")
@@ -233,18 +227,76 @@ class CodeWriter:
         self.write_line("@ARG")
         self.write_line("M=D")
 
-        # LCL = SP
         self.write_line("@SP")
         self.write_line("D=M")
         self.write_line("@LCL")
         self.write_line("M=D")
 
-        # goto function
         self.write_line(f"@{function_name}")
         self.write_line("0;JMP")
 
-        # return-address label
         self.write_line(f"({return_label})")
+
+    def write_return(self):
+        # FRAME = LCL
+        self.write_line("@LCL")
+        self.write_line("D=M")
+        self.write_line("@R13")
+        self.write_line("M=D")
+
+        # RET = *(FRAME - 5)
+        self.write_line("@5")
+        self.write_line("A=D-A")
+        self.write_line("D=M")
+        self.write_line("@R14")
+        self.write_line("M=D")
+
+        # *ARG = pop()
+        self.write_line("@SP")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line("@ARG")
+        self.write_line("A=M")
+        self.write_line("M=D")
+
+        # SP = ARG + 1
+        self.write_line("@ARG")
+        self.write_line("D=M+1")
+        self.write_line("@SP")
+        self.write_line("M=D")
+
+        # THAT = *(FRAME - 1)
+        self.write_line("@R13")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line("@THAT")
+        self.write_line("M=D")
+
+        # THIS = *(FRAME - 2)
+        self.write_line("@R13")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line("@THIS")
+        self.write_line("M=D")
+
+        # ARG = *(FRAME - 3)
+        self.write_line("@R13")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line("@ARG")
+        self.write_line("M=D")
+
+        # LCL = *(FRAME - 4)
+        self.write_line("@R13")
+        self.write_line("AM=M-1")
+        self.write_line("D=M")
+        self.write_line("@LCL")
+        self.write_line("M=D")
+
+        # goto RET
+        self.write_line("@R14")
+        self.write_line("A=M")
+        self.write_line("0;JMP")
 
     def close(self):
         self.file.close()
