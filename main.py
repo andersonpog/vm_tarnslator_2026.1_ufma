@@ -54,6 +54,9 @@ def main():
         elif command_type == "C_CALL":
             writer.write_call(parser.arg1(), parser.arg2())
 
+        elif command_type == "C_RETURN":
+            writer.write_return()
+
     writer.close()
 
 
