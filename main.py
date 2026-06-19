@@ -27,7 +27,8 @@ def main():
         print(f"Erro: O caminho '{input_path}' é inválido.")
         sys.exit(1)
 
-    writer = CodeWriter(output_file)
+    needs_bootstrap = any("Sys.vm" in f for f in vm_files)
+    writer = CodeWriter(output_file, write_bootstrap=needs_bootstrap)
 
     for vm_file in vm_files:
         parser = Parser(vm_file)

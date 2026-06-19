@@ -1,7 +1,7 @@
 import os
 
 class CodeWriter:
-    def __init__(self, filename):
+    def __init__(self, filename, write_bootstrap=True):
         self.file = open(filename, "w", encoding="utf-8")
         self.label_count = 0
         self.return_count = 0
@@ -9,7 +9,9 @@ class CodeWriter:
         self.current_function = "" # Rastreador de contexto para os labels
 
         # Bootstrap: inicializa SP = 256
-        self.write_init()
+        # Bootstrap condicional
+        if write_bootstrap:
+            self.write_init()
 
     def set_filename(self, filename):
         """Atualizado via main.py para cada arquivo .vm processado."""
