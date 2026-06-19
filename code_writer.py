@@ -5,13 +5,23 @@ class CodeWriter:
         self.file = open(filename, "w", encoding="utf-8")
         self.label_count = 0
         self.return_count = 0
-        self.filename_base = os.path.basename(filename).replace(".asm", "")
+        self.filename_base = ""
+        self.current_function = "" # Rastreador de contexto para os labels
 
         # Bootstrap: inicializa SP = 256
         self.write_init()
 
+    def set_filename(self, filename):
+        """Atualizado via main.py para cada arquivo .vm processado."""
+        self.filename_base = os.path.basename(filename).replace(".vm", "")
+
     def write_line(self, line):
         self.file.write(line + "\n")
+
+    def _format_label(self, label):
+        if self.current_function:
+            return f"{self.current_function}${label}"
+        return label
 
     def write_init(self):
         self.write_line("// Bootstrap code")
@@ -19,7 +29,7 @@ class CodeWriter:
         self.write_line("D=A")
         self.write_line("@SP")
         self.write_line("M=D")
-        self.write_line("// call Sys.init 0 sera implementado na etapa de sub-rotinas")
+        self.write_call("Sys.init", 0)
 
     def push_d(self):
         self.write_line("@SP")
@@ -175,20 +185,24 @@ class CodeWriter:
             self.write_line("M=D")
 
     def write_label(self, label):
-        self.write_line(f"({label})")
+        formatted_label = self._format_label(label)
+        self.write_line(f"({formatted_label})")
 
     def write_goto(self, label):
-        self.write_line(f"@{label}")
+        formatted_label = self._format_label(label)
+        self.write_line(f"@{formatted_label}")
         self.write_line("0;JMP")
 
     def write_if(self, label):
+        formatted_label = self._format_label(label)
         self.write_line("@SP")
         self.write_line("AM=M-1")
         self.write_line("D=M")
-        self.write_line(f"@{label}")
+        self.write_line(f"@{formatted_label}")
         self.write_line("D;JNE")
 
     def write_function(self, function_name, n_locals):
+        self.current_function = function_name # Atualiza o escopo para os próximos labels
         self.write_line(f"({function_name})")
 
         for _ in range(n_locals):
